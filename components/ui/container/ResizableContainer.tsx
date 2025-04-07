@@ -22,11 +22,12 @@ const ResizableContainer = React.forwardRef<HTMLDivElement, Props>(
             style={{
               containerType: "inline-size",
               width: "100%",
-              maxWidth: `${width}px`,
+              maxWidth: width > 0 ? `${width}px` : "100%",
               minWidth: "300px",
               minHeight: "500px",
               maxHeight: "100vh",
             }}
+            
           >
             <div className="w-full h-full flex flex-col items-center justify-start overflow-x-hidden">
               {children}

@@ -11,14 +11,14 @@ interface ToggleComponentProps {
   code: string;
 }
 
-const presetWidths = [1440, 340, 640, 768, 1024];
+const presetWidths = [340, 640, 768, 1024, 1440];
 
 const ToggleComponent: React.FC<ToggleComponentProps> = ({ component, code }) => {
   const [view, setView] = useState<"preview" | "code">("preview");
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
-  const [resizeWidth, setResizeWidth] = useState(1440);
+  const [resizeWidth, setResizeWidth] = useState(0); // Se define solo si es manual
   const [isManualResize, setIsManualResize] = useState(false);
   const isDraggingRef = useRef(false);
 
@@ -33,18 +33,23 @@ const ToggleComponent: React.FC<ToggleComponentProps> = ({ component, code }) =>
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const newWidth = Math.floor(entry.contentRect.width);
-
-        if (!isDraggingRef.current) {
-          setIsManualResize(false);
-          setResizeWidth(newWidth);
-        }
-
         setContainerWidth(newWidth);
+
+        // Solo si no es manual, usamos 100%
+        if (!isDraggingRef.current && !isManualResize) {
+          setResizeWidth(0);
+        }
       }
     });
 
     observer.observe(element);
     return () => observer.disconnect();
+  }, [isManualResize]);
+
+  useEffect(() => {
+    const handleResize = () => setResizeWidth(0);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const handleNextWidth = () => {
@@ -80,7 +85,7 @@ const ToggleComponent: React.FC<ToggleComponentProps> = ({ component, code }) =>
   return (
     <div className="w-full bg-white relative">
       {/* Tabs + botón de ancho */}
-      <div className="flex justify-between items-center border-b  h-10 mb-8">
+      <div className="flex justify-between items-center border-b h-10 mb-8">
         <div className="flex gap-4 items-center">
           <button
             onClick={() => setView("preview")}
@@ -108,9 +113,9 @@ const ToggleComponent: React.FC<ToggleComponentProps> = ({ component, code }) =>
 
           <button
             onClick={handleNextWidth}
-            className="text-xs font-mono text-gray-500 hover:text-black px-2 py-1 rounded border border-gray-300"
+            className="text-xs font-mono text-gray-500 hover:text-black px-2 py-1 rounded border border-gray-300 transition-all duration-200"
           >
-            📏 {appliedWidth}px
+            {isManualResize ? `📏 ${appliedWidth}px` : "📏 100%"}
           </button>
         </div>
       </div>
@@ -118,11 +123,10 @@ const ToggleComponent: React.FC<ToggleComponentProps> = ({ component, code }) =>
       {/* Contenedor observado */}
       <div className="relative pt-2" ref={containerRef}>
         <div className="relative w-full flex justify-start">
-          {/* Contenedor limitado en px solo si es manual */}
           <div
             className="relative"
             style={
-              isManualResize
+              isManualResize && resizeWidth > 0
                 ? { width: `${appliedWidth}px` }
                 : { width: "100%" }
             }
