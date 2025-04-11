@@ -11,7 +11,6 @@ interface ToggleComponentProps {
   code: string;
 }
 
-const presetWidths = [340, 640, 768, 1024, 1440];
 
 const ToggleComponent: React.FC<ToggleComponentProps> = ({ component, code }) => {
   const [view, setView] = useState<"preview" | "code">("preview");
@@ -52,20 +51,6 @@ const ToggleComponent: React.FC<ToggleComponentProps> = ({ component, code }) =>
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const handleNextWidth = () => {
-    setIsManualResize(true);
-
-    const validWidths = presetWidths.filter((w) => w <= containerWidth);
-    if (validWidths.length === 0) return;
-
-    const currentIndex = validWidths.findIndex((w) => w === resizeWidth);
-    const nextIndex =
-      currentIndex === -1 || currentIndex === validWidths.length - 1
-        ? 0
-        : currentIndex + 1;
-
-    setResizeWidth(validWidths[nextIndex]);
-  };
 
   const handleManualResize = (newWidth: number) => {
     setIsManualResize(true);
@@ -83,9 +68,9 @@ const ToggleComponent: React.FC<ToggleComponentProps> = ({ component, code }) =>
   };
 
   return (
-    <div className="w-full bg-white relative">
+    <div className="w-full bg-white relatives">
       {/* Tabs + botón de ancho */}
-      <div className="flex justify-between items-center border-b h-10 mb-8">
+      <div className="flex justify-between items-center border-b h-10 mb-8 ">
         <div className="flex gap-4 items-center">
           <button
             onClick={() => setView("preview")}
@@ -111,12 +96,6 @@ const ToggleComponent: React.FC<ToggleComponentProps> = ({ component, code }) =>
             )}
           </button>
 
-          <button
-            onClick={handleNextWidth}
-            className="text-xs font-mono text-gray-500 hover:text-black px-2 py-1 rounded border border-gray-300 transition-all duration-200"
-          >
-            {isManualResize ? `📏 ${appliedWidth}px` : "📏 100%"}
-          </button>
         </div>
       </div>
 

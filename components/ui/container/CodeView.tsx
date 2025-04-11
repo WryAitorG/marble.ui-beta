@@ -3,7 +3,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import hljs from "highlight.js";
 import "highlight.js/styles/github-dark.css";
-import ScrollArea from "@/components/ui/container/scroll-area";
 
 interface CodeViewProps {
   code: string;
@@ -20,14 +19,11 @@ const CodeView: React.FC<CodeViewProps> = ({ code, isVisible }) => {
     }
   }, [isVisible]);
 
-  // Limpia los @ de las clases
-  const cleanedCode = code.replace(/@(?=\w+:)/g, "");
-
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(cleanedCode);
+      await navigator.clipboard.writeText(code);
       setCopied(true);
-      setTimeout(() => setCopied(false), 1500); // Oculta el mensaje después de 1.5s
+      setTimeout(() => setCopied(false), 1500);
     } catch (err) {
       console.error("Error al copiar el código:", err);
     }
@@ -49,13 +45,20 @@ const CodeView: React.FC<CodeViewProps> = ({ code, isVisible }) => {
         </button>
       </div>
 
-      <ScrollArea>
+      {/* Scroll integrado */}
+      <div
+        className="relative w-full h-full overflow-scroll"
+        style={{
+          scrollbarWidth: "thin", // Firefox
+          scrollbarColor: "white transparent",
+        }}
+      >
         <pre className="w-max min-w-full h-max min-h-full p-4">
           <code ref={codeRef} className="language-tsx">
-            {cleanedCode}
+            {code}
           </code>
         </pre>
-      </ScrollArea>
+      </div>
     </div>
   );
 };

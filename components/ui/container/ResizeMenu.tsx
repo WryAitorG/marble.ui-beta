@@ -60,10 +60,10 @@ const ResizeMenu: React.FC<ResizeMenuProps> = ({
     <div
       ref={dragRef}
       onMouseDown={handleMouseDown}
-      className="absolute left-4 right-4 -top-[-19px] z-50 cursor-ew-resize group"
+      className="absolute left-4 right-4 -top-[-19px] cursor-ew-resize grou"
       style={{
         height: "40px", // Área de interacción amplia
-        transform: "translateY(-50%)",
+        transform: "translateY(-105%)",
         pointerEvents: "auto",
       }}
     >
@@ -71,7 +71,7 @@ const ResizeMenu: React.FC<ResizeMenuProps> = ({
         className="w-full mx-auto bg-gray-300 group-hover:bg-gray-400 rounded-full transition-all duration-300"
         style={{
           height: "6px",
-          marginTop: "7px",
+          marginTop: "30px",
           marginBottom: "7px",
           transform: "scaleY(1)",
         }}

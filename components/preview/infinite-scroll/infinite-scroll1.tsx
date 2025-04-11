@@ -87,7 +87,7 @@ const InfiniteScroll: React.FC = () => {
         {/* Definimos la animación mejorada */}
         <style>
           {`
-            @keyframes scrollLeft {
+            keyframes scrollLeft {
               0% {
                 transform: translateX(0);
               }
@@ -96,7 +96,7 @@ const InfiniteScroll: React.FC = () => {
               }
             }
 
-            @keyframes scrollRight {
+            keyframes scrollRight {
               0% {
                 transform: translateX(-50%);
               }

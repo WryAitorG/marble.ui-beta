@@ -1,26 +1,23 @@
 import ComponentList from "@/components/ui/container/ComponentList";
 import { getComponentData } from "@/utils/getComponentData";
+import { sidebarSections } from "@/utils/sidebarSections";
 import fs from "fs";
 import path from "path";
 
-// Forzamos el renderizado dinámico para manejar APIs asíncronas
 export const dynamicParams = false;
 
+const allCategories = sidebarSections.flatMap((section) =>
+  section.items.map((item) => item.slug)
+);
+
 export async function generateStaticParams() {
-  return [
-    { category: "CTA" },
-    { category: "headers" },
-    { category: "infinite-scroll" },
-    { category: "footers" },
-    // todas tus categorías conocidas
-  ];
+  return allCategories.map((category) => ({ category }));
 }
 
 interface Props {
   params: Promise<{ category: string }>;
 }
 
-// Lee el código fuente del componente de forma asíncrona
 const getComponentCode = async (
   category: string,
   slug: string
@@ -41,22 +38,71 @@ const getComponentCode = async (
   }
 };
 
+const getSingleComponentModule = async (
+  slug: string
+): Promise<React.ComponentType<Record<string, unknown>> | null> => {
+  try {
+    const mod = await import(`@/components/preview/${slug}`);
+    return mod.default || null;
+  } catch (err) {
+    console.error(`❌ No se pudo importar ${slug}.tsx`, err);
+    return null;
+  }
+};
+
+const getComponentModule = async (
+  category: string,
+  slug: string
+): Promise<React.ComponentType<Record<string, unknown>> | null> => {
+  try {
+    const mod = await import(`@/components/preview/${category}/${slug}`);
+    return mod.default || null;
+  } catch (err) {
+    console.error(`❌ No se pudo importar ${category}/${slug}`, err);
+    return null;
+  }
+};
+
 export default async function ComponentPage({ params }: Props) {
-  const { category } = await params; // Esperamos a que params se resuelva
+  const { category } = await params;
 
-  // Carga los datos del contenido MDX
-  const componentData = await getComponentData(category);
+  const { expectedCount, components } = await getComponentData(category);
 
-  // Lee el código fuente `.tsx` de cada componente
+  if (expectedCount === null) {
+    const Component = await getSingleComponentModule(category);
+
+    return (
+      <div className="mx-auto pt-12 pb-10 pl-4">
+        <h1 className="text-5xl font-bold mb-4">Componente {category}</h1>
+
+        {!Component ? (
+          <p className="text-red-500 text-center">
+            ⚠️ No se pudo cargar el componente {category}.tsx
+          </p>
+        ) : (
+          <div className="mb-6">
+            <Component />
+          </div>
+        )}
+      </div>
+    );
+  }
+
   const prepared = await Promise.all(
-    componentData.map(async (comp) => ({
-      ...comp,
-      code: await getComponentCode(category, comp.slug),
-    }))
+    components.map(async (comp) => {
+      const code = await getComponentCode(category, comp.slug);
+      const Component = await getComponentModule(category, comp.slug);
+
+      return {
+        ...comp,
+        code,
+        Component,
+      };
+    })
   );
 
   return (
-    <div className="mx-auto max-w-8xl pt-12">
+    <div className="mx-auto pt-12 pb-10 pl-4">
       <h1 className="text-5xl font-bold mb-4">
         Todos los componentes {category}
       </h1>

@@ -20,7 +20,7 @@ export default {
         inter: ["Inter", "sans-serif"],
       },
       maxWidth: {
-        "8xl": "1440px",
+        "8xl": "1340px",
         "9xl": "1600px",
       },
     },
