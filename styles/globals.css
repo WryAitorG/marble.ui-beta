@@ -1,0 +1,62 @@
+/* Importa la fuente Inter en varios pesos usando Fontsource */
+@import "@fontsource/inter/200.css";   /* ExtraLight */
+@import "@fontsource/inter/300.css";   /* Light */
+@import "@fontsource/inter/400.css";   /* Regular */
+@import "@fontsource/inter/500.css";   /* Medium */
+@import "@fontsource/inter/600.css";   /* SemiBold */
+@import "@fontsource/inter/700.css";   /* Bold */
+@import "@fontsource/inter/800.css";   /* ExtraBold */
+@import "@fontsource/inter/900.css";   /* Black */
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  font-family: "Inter", sans-serif;
+}
+
+
+/* Estilo personalizado del scrollbar para el sidebar */
+
+.custom-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.custom-scroll:hover::-webkit-scrollbar-thumb {
+  background-color: #d1d5db; /* gris claro (Tailwind gray-300) */
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scroll {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: transparent transparent;
+}
+
+.custom-scroll:hover {
+  scrollbar-color: #d1d5db transparent;
+}
+
+
