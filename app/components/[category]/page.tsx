@@ -1,6 +1,8 @@
 import ComponentList from "@/components/ui/container/ComponentList";
 import { getComponentData } from "@/utils/getComponentData";
 import { sidebarSections } from "@/utils/sidebarSections";
+import NextPrevNavigation from "@/components/ui/container/NextPrevNavigation";
+
 import fs from "fs";
 import path from "path";
 
@@ -114,6 +116,9 @@ export default async function ComponentPage({ params }: Props) {
       ) : (
         <ComponentList category={category} components={prepared} />
       )}
+      <NextPrevNavigation currentSlug={category} />
+
+      
     </div>
   );
 }

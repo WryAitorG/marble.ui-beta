@@ -14,14 +14,20 @@ export default function Home() {
   }, [router]);
 
   return (
-    <main className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden px-6 bg-white">
-      <div className="absolute top-[-200px] left-1/2 transform -translate-x-1/2 w-[800px] h-[800px] bg-gradient-to-br from-pink-300 via-purple-300 to-blue-300 rounded-full blur-[120px] opacity-40 pointer-events-none z-0" />
+    <main className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden px-6 bg-white pt-10 ">
+      {/* Fondo gradiente amarillo responsive */}
+      <div
+        className="absolute top-[-150px] left-1/2 transform -translate-x-1/2 
+        w-[200px] h-[400px] sm:w-[700px] sm:h-[500px] md:w-[1000px] md:h-[800px]
+        bg-gradient-to-br from-yellow-200 via-yellow-300 to-orange-300 
+        rounded-full blur-[100px] opacity-40 pointer-events-none z-0"
+      />
 
-      <h1 className="z-10 text-4xl sm:text-5xl md:text-5xl font-bold text-center leading-tight">
+      <h1 className="z-10 text-3xl sm:text-4xl md:text-5xl font-bold sm:text-center text-left leading-tight max-w-2xl">
         Componentes UI cuidadosamente diseñados <br /> para Desarrolladores y Diseñadores
       </h1>
 
-      <p className="z-10 mt-6 text-center max-w-2xl text-gray-600 text-lg">
+      <p className="z-10 mt-6 max-w-2xl text-gray-600 text-lg sm:text-center text-left">
         🧩 Accede a más de <strong>60+</strong> elementos UI responsivos y animados construidos con
         <strong> React</strong>, <strong>TypeScript</strong>, <strong>Tailwind CSS</strong> y <strong>Framer Motion</strong>.
         <br /> Integrados perfectamente y listos para desplegar.
@@ -34,8 +40,8 @@ export default function Home() {
           </button>
         </Link>
         <Link href="/animations">
-          <button className="px-6 py-3 border rounded-lg hover:bg-gray-100 transition">
-            🧠 Ver Animaciones
+          <button className="px-6 py-3 bg-white text-black border rounded-lg hover:scale-105 transition shadow-lg">
+            🧾 Ver Templates
           </button>
         </Link>
       </div>

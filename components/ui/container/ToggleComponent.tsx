@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useId } from "react";
 import PreviewWithIframe from "@/components/ui/container/PreviewWithIframe";
 import CodeView from "@/components/ui/container/CodeView";
 import ResizableContainer from "@/components/ui/container/ResizableContainer";
@@ -18,11 +18,26 @@ const ToggleComponent: React.FC<ToggleComponentProps> = ({ component, code }) =>
   const [containerWidth, setContainerWidth] = useState(0);
   const [resizeWidth, setResizeWidth] = useState(0);
   const [isManualResize, setIsManualResize] = useState(false);
+  const [iframeHeight, setIframeHeight] = useState<number>(500);
   const isDraggingRef = useRef(false);
+
+  const uid = useId();
 
   const appliedWidth = isManualResize
     ? Math.min(resizeWidth, containerWidth)
     : containerWidth;
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === "iframe-height" && event.data.id === uid) {
+        console.log(`[iframe-height] ID: ${event.data.id}, Altura aplicada: ${event.data.height}`);
+        setIframeHeight(event.data.height);
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [uid]);
 
   useEffect(() => {
     const element = containerRef.current;
@@ -32,7 +47,6 @@ const ToggleComponent: React.FC<ToggleComponentProps> = ({ component, code }) =>
       for (const entry of entries) {
         const newWidth = Math.floor(entry.contentRect.width);
         setContainerWidth(newWidth);
-
         if (!isDraggingRef.current && !isManualResize) {
           setResizeWidth(0);
         }
@@ -66,6 +80,7 @@ const ToggleComponent: React.FC<ToggleComponentProps> = ({ component, code }) =>
 
   return (
     <div className="w-full bg-white relative">
+      {/* Controles de vista */}
       <div className="flex justify-between items-center border-b h-10 mb-8">
         <div className="flex gap-4 items-center">
           <button
@@ -94,6 +109,7 @@ const ToggleComponent: React.FC<ToggleComponentProps> = ({ component, code }) =>
         </div>
       </div>
 
+      {/* Contenedor con resize */}
       <div className="relative pt-2" ref={containerRef}>
         <div className="relative w-full flex justify-start">
           <div
@@ -104,11 +120,15 @@ const ToggleComponent: React.FC<ToggleComponentProps> = ({ component, code }) =>
                 : { width: "100%" }
             }
           >
-            <ResizableContainer width={appliedWidth}>
-              <div className="w-full h-full flex flex-col items-center justify-center ">
+            <ResizableContainer
+              width={appliedWidth}
+              height={view === "code" ? 500 : iframeHeight}
+            >
+              <div className="w-full flex flex-col items-center">
                 <PreviewWithIframe
                   component={component}
                   visible={view === "preview"}
+                  id={uid}
                 />
                 <CodeView code={code} isVisible={view === "code"} />
               </div>

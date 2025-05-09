@@ -43,7 +43,7 @@ const HeroSection: React.FC = () => {
 
         <div className="flex-1 mt-5 mx-auto sm:w-9/12 lg:mt-0 lg:w-auto">
           <Image
-            src="https://i.postimg.cc/kgd4WhyS/container.png"
+            src="/media/cta2.jpg"
             alt="Container graphic"
             width={600}
             height={400}

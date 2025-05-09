@@ -1,122 +1,145 @@
 "use client";
 
-import React from "react";
-import { FaPython, FaReact, FaHtml5, FaCss3Alt, FaGitAlt, FaGithub, FaDatabase } from "react-icons/fa";
-import { SiDjango, SiJavascript, SiNextdotjs, SiTypescript, SiPostgresql } from "react-icons/si";
-import { GrMysql } from "react-icons/gr";
+import { useRef, useEffect, useState, useCallback } from "react";
 
-// Tipado correcto para TypeScript
-const techIcons: Record<string, React.ReactNode> = {
-  Python: <FaPython className="text-gray-300 text-5xl" />,
-  Django: <SiDjango className="text-gray-300 text-5xl" />,
-  Javascript: <SiJavascript className="text-gray-300 text-5xl" />,
-  HTML: <FaHtml5 className="text-gray-300 text-5xl" />,
-  CSS: <FaCss3Alt className="text-gray-300 text-5xl" />,
-  React: <FaReact className="text-gray-300 text-5xl" />,
-  "Next.js": <SiNextdotjs className="text-gray-300 text-5xl" />,
-  Typescript: <SiTypescript className="text-gray-300 text-5xl" />,
-  git: <FaGitAlt className="text-gray-300 text-5xl" />,
-  github: <FaGithub className="text-gray-300 text-5xl" />,
-  MySQL: <GrMysql className="text-gray-300 text-5xl" />,
-  PostgreSQL: <SiPostgresql className="text-gray-300 text-5xl" />,
-};
+const Home = () => {
+  const pathRef = useRef<SVGPathElement | null>(null);
+  const lineRef = useRef<HTMLDivElement | null>(null);
 
-const InfiniteScroll: React.FC = () => {
-  const names = Object.keys(techIcons);
-  const numItems = names.length;
-  const itemWidth = 200; // Tamaño de cada elemento
-  const animationDuration = numItems * 3; // Velocidad de animación ajustada
+  const [width, setWidth] = useState(0);
 
-  // Dividimos los elementos en dos mitades
-  const firstHalf = names.slice(0, Math.ceil(numItems / 2));
-  const secondHalf = names.slice(Math.ceil(numItems / 2));
+  const progress = useRef(0);
+  const x = useRef(0.5);
+  const time = useRef(Math.PI / 2);
+  const reqId = useRef<number | null>(null);
+
+  const setPath = useCallback(
+    (progressValue: number) => {
+      if (pathRef.current) {
+        pathRef.current.setAttribute(
+          "d",
+          `M0 250 Q${width * x.current} ${250 + progressValue}, ${width} 250`
+        );
+      }
+    },
+    [width]
+  );
+
+  const lerp = (start: number, end: number, alpha: number) =>
+    start * (1 - alpha) + end * alpha;
+
+  const resetAnimation = () => {
+    time.current = Math.PI / 2;
+    progress.current = 0;
+  };
+
+  const animateOut = () => {
+    const newProgress = progress.current * Math.sin(time.current);
+    progress.current = lerp(progress.current, 0, 0.025);
+    time.current += 0.2;
+    setPath(newProgress);
+
+    if (Math.abs(progress.current) > 0.75) {
+      reqId.current = requestAnimationFrame(animateOut);
+    } else {
+      resetAnimation();
+    }
+  };
+
+  const manageMouseEnter = () => {
+    if (reqId.current) {
+      cancelAnimationFrame(reqId.current);
+      resetAnimation();
+    }
+  };
+
+  const manageMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    const { movementY, clientX } = e;
+    if (!pathRef.current || !lineRef.current) return;
+    const pathBound = lineRef.current.getBoundingClientRect();
+    x.current = (clientX - pathBound.left) / pathBound.width;
+    progress.current += movementY;
+    setPath(progress.current);
+  };
+
+  const manageMouseLeave = () => {
+    animateOut();
+  };
+
+  useEffect(() => {
+    const updateWidth = () => {
+      if (lineRef.current) {
+        setWidth(lineRef.current.getBoundingClientRect().width);
+      }
+    };
+
+    updateWidth();
+    window.addEventListener("resize", updateWidth);
+    return () => window.removeEventListener("resize", updateWidth);
+  }, []);
+
+  useEffect(() => {
+    setPath(progress.current);
+  }, [width, setPath]);
 
   return (
-    <>
-      <div className=" flex flex-col justify-center items-center space-y-10 p-10">
-        {/* Primera fila (hacia la izquierda) */}
-        <div
-          className="relative w-full max-w-screen-lg h-[100px] overflow-hidden"
-          style={{
-            maskImage:
-              "linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 1) 80%, rgba(0, 0, 0, 0))",
-            WebkitMaskImage:
-              "linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 1) 80%, rgba(0, 0, 0, 0))",
-          }}
-        >
+    <div style={styles.container}>
+      <div style={styles.body}>
+        <div style={styles.line} ref={lineRef}>
           <div
-            className="flex space-x-8 animate-scrollLeft"
-            style={{ width: `${itemWidth * firstHalf.length * 2}px` }} // Duplicamos el ancho para un bucle perfecto
-          >
-            {[...firstHalf, ...firstHalf].map((name, index) => (
-              <div
-                key={`left-${index}`}
-                className="w-[200px] h-[100px] flex justify-center items-center text-gray-300 text-lg font-semibold space-x-3"
-              >
-                {techIcons[name] ?? <FaDatabase />} <span>{name}</span>
-              </div>
-            ))}
-          </div>
+            style={styles.box}
+            onMouseEnter={manageMouseEnter}
+            onMouseMove={manageMouseMove}
+            onMouseLeave={manageMouseLeave}
+          ></div>
+          <svg style={styles.svg}>
+            <path ref={pathRef} style={styles.path}></path>
+          </svg>
         </div>
-
-        {/* Segunda fila (hacia la derecha) */}
-        <div
-          className="relative w-full max-w-screen-lg h-[100px] overflow-hidden mt-8"
-          style={{
-            maskImage:
-              "linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 1) 80%, rgba(0, 0, 0, 0))",
-            WebkitMaskImage:
-              "linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 1) 80%, rgba(0, 0, 0, 0))",
-          }}
-        >
-          <div
-            className="flex space-x-8 animate-scrollRight"
-            style={{ width: `${itemWidth * secondHalf.length * 2}px` }} // Duplicamos el ancho para un bucle perfecto
-          >
-            {[...secondHalf, ...secondHalf].map((name, index) => (
-              <div
-                key={`right-${index}`}
-                className="w-[200px] h-[100px] flex justify-center items-center text-gray-300 text-lg font-semibold space-x-3"
-              >
-                {techIcons[name] ?? <FaDatabase />} <span>{name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Definimos la animación mejorada */}
-        <style>
-          {`
-            @keyframes scrollLeft {
-              0% {
-                transform: translateX(0);
-              }
-              100% {
-                transform: translateX(-50%);
-              }
-            }
-
-            @keyframes scrollRight {
-              0% {
-                transform: translateX(-50%);
-              }
-              100% {
-                transform: translateX(0);
-              }
-            }
-
-            .animate-scrollLeft {
-              animation: scrollLeft ${animationDuration}s linear infinite;
-            }
-
-            .animate-scrollRight {
-              animation: scrollRight ${animationDuration}s linear infinite;
-            }
-          `}
-        </style>
       </div>
-    </>
+    </div>
   );
 };
 
-export default InfiniteScroll;
+const styles: { [key: string]: React.CSSProperties } = {
+  container: {
+    height: "100vh",
+    width: "100vw",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "transparent",
+  },
+  body: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-end",
+    width: "70vw",
+  },
+  line: {
+    height: "1px",
+    marginBottom: "20px",
+    width: "100%",
+    position: "relative",
+  },
+  svg: {
+    width: "100%",
+    height: "500px",
+    position: "absolute",
+    top: "-250px",
+  },
+  path: {
+    stroke: "black",
+    strokeWidth: "1px",
+    fill: "none",
+  },
+  box: {
+    height: "40px",
+    width: "100%",
+    position: "relative",
+    top: "-20px",
+    zIndex: 1,
+  },
+};
+
+export default Home;

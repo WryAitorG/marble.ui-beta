@@ -53,7 +53,7 @@ export default function Navbar() {
           <nav className="hidden md:flex gap-4 text-sm text-black">
             {[
               { href: "/components", label: "Components" },
-              { href: "/animations", label: "Animations" },
+              { href: "/templates", label: "templates" },
             ].map(({ href, label }) => {
               const isActive = pathname === href;
               return (
@@ -103,14 +103,19 @@ export default function Navbar() {
             <ul className="absolute top-full left-0 w-full bg-white border border-gray-300 rounded-md mt-1 shadow-lg z-10">
               {filteredCategories.map((category) => (
                 <Link
-                  key={category}
-                  href={`/components/${category}`}
-                  prefetch
-                  onMouseEnter={() => router.prefetch(`/components/${category}`)}
-                  className="block px-4 py-2 cursor-pointer hover:bg-gray-100"
-                >
-                  {category.replace(/-/g, " ")}
-                </Link>
+                key={category}
+                href={`/components/${category}`}
+                prefetch
+                onMouseEnter={() => router.prefetch(`/components/${category}`)}
+                onClick={() => {
+                  setSearch("");
+                  setFilteredCategories([]);
+                }}
+                className="block px-4 py-2 cursor-pointer hover:bg-gray-100"
+              >
+                {category.replace(/-/g, " ")}
+              </Link>
+              
               ))}
             </ul>
           )}
